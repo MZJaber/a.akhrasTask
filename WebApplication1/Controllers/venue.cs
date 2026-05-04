@@ -4,6 +4,7 @@ using System.Diagnostics.Eventing.Reader;
 using System.Drawing;
 using System.Linq.Expressions;
 using System.Xml.Linq;
+using WebApplication1.Dto;
 using WebApplication1.Models;
 
 namespace WebApplication1.Controllers
@@ -18,7 +19,7 @@ namespace WebApplication1.Controllers
         {
 
             var vdb = new InfrastructureDbContext();
-            var venues = vdb.Venues.Where(f => f.Status != RowStatus.Deleted).ToList();
+            var venues = vdb.Venues.Where(f => f.Status != RowStatus.Deleted).Select(v => new VenueDto { id = v.Id, name = v.Name });
 
             // Return all products
             return Ok(venues);
@@ -31,12 +32,12 @@ namespace WebApplication1.Controllers
         public ActionResult<Venue> Get(int id)
         {
             var vedb = new InfrastructureDbContext();
-            var venueId = vedb.Venues.FirstOrDefault(v => v.Id == id && v.Status != RowStatus.Deleted);
+            var venueId = vedb.Venues.Where(v => v.Id == id && v.Status != RowStatus.Deleted).Select(v => new VenueDto { id = v.Id, name = v.Name }).FirstOrDefault();
             if (venueId == null)
             {
                 return NotFound();
             }
-            return venueId;
+            return Ok(venueId);
         }
 
 
@@ -64,13 +65,13 @@ namespace WebApplication1.Controllers
 
    [HttpPut("{id}")]
 
-        public IActionResult UpDateVenue([FromBody] VenueModel venue)
+        public IActionResult UpDateVenue(int id, [FromBody] VenueModel venue)
         {
             if (venue == null)
                 return BadRequest();
 
             var venudb=new InfrastructureDbContext();
-            var exisVenue= venudb.Venues.Where(v => v.Status != RowStatus.Deleted).FirstOrDefault(v => v.Id == venue.Id);
+            var exisVenue= venudb.Venues.Where(v => v.Status != RowStatus.Deleted).FirstOrDefault(v => v.Id == id);
 
             if (exisVenue == null)
                 return NotFound();
@@ -105,7 +106,7 @@ namespace WebApplication1.Controllers
 
         public class VenueModel
         {
-            public int Id { get; set; }
+            
 
             public string? Name { get; set; }
         }

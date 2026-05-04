@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
+using WebApplication1.Dto;
 using WebApplication1.Models;
 
 namespace WebApplication1.Controllers
@@ -14,7 +15,7 @@ namespace WebApplication1.Controllers
         public IActionResult GetAllLine()
         {
             var lindb = new InfrastructureDbContext();
-            var lins = lindb.Lines.Where(f => f.Status != RowStatus.Deleted).ToList();
+            var lins = lindb.Lines.Where(l => l.Status != RowStatus.Deleted).Select(l => new LineDto { id = l.Id, first_node_id = l.FirstNodeId, second_node_id=l.SecondNodeId, is_two_way=l.IsTwoWay });
             return Ok(lins);
         }
 
@@ -22,12 +23,12 @@ namespace WebApplication1.Controllers
         public ActionResult<Line> Get(int id)
         {
             var lidb = new InfrastructureDbContext();
-            var lineId = lidb.Lines.Where(l => l.Id == id && l.Status != RowStatus.Deleted).FirstOrDefault();
+            var lineId = lidb.Lines.Where(l => l.Id == id && l.Status != RowStatus.Deleted).Select(l => new LineDto { id = l.Id, first_node_id = l.FirstNodeId, second_node_id = l.SecondNodeId, is_two_way = l.IsTwoWay }).FirstOrDefault();
             if (lineId == null)
             {
                 return NotFound();
             }
-            return lineId;
+            return Ok(lineId);
         }
 
 
@@ -59,13 +60,13 @@ namespace WebApplication1.Controllers
        
 
      [HttpPut ("{id}")]
-        public IActionResult UpDateLine([FromBody] LineModel line)
+        public IActionResult UpDateLine(int id, [FromBody] LineModel line)
         { 
          if(line == null)
                 return BadRequest();
 
          var lindb = new InfrastructureDbContext();
-         var exisLine = lindb.Lines.Where(l => l.Status != RowStatus.Deleted).FirstOrDefault(l => l.Id == line.Id);
+         var exisLine = lindb.Lines.Where(l => l.Status != RowStatus.Deleted).FirstOrDefault(l => l.Id == id);
 
 
             if(exisLine == null)
@@ -108,7 +109,8 @@ namespace WebApplication1.Controllers
 
         public class LineModel
         {
-            public int? Id { get; set; }
+           
+
             public int? FirstNodeId { get; set; }
 
             public int? SecondNodeId { get; set; }

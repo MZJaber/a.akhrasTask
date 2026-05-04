@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
+using WebApplication1.Dto;
 using WebApplication1.Models;
 
 namespace WebApplication1.Controllers
@@ -19,7 +20,7 @@ namespace WebApplication1.Controllers
         public IActionResult GetAllNode()
         {
             var nodedb = new InfrastructureDbContext();
-            var Nodes = nodedb.Nodes.Where(f => f.Status != RowStatus.Deleted).ToList();
+            var Nodes = nodedb.Nodes.Where(f => f.Status != RowStatus.Deleted).Select(n => new NodeDto { Id = n.Id, floor_id = n.FloorId, x = n.X, y = n.Y, Long = n.Long, lat = n.Lat}).ToList();
             return Ok(Nodes);
 
         }
@@ -30,10 +31,10 @@ namespace WebApplication1.Controllers
         {
 
 
-            var node = _context.Nodes.Where(n => n.Id == id && n.Status != RowStatus.Deleted).FirstOrDefault();
+            var node = _context.Nodes.Where(n => n.Id == id && n.Status != RowStatus.Deleted).Select(n => new NodeDto {Id=n.Id,floor_id=n.FloorId,x=n.X,y=n.Y,Long=n.Long,lat=n.Lat }).FirstOrDefault();
             if (node == null)
             { return NotFound(); }
-            return node;
+            return Ok(node);
         }
 
 
@@ -66,27 +67,28 @@ namespace WebApplication1.Controllers
        
 
      [HttpPut("{id}")]
-        public IActionResult UpDataNode([FromBody] NodeModel node)
+        public IActionResult UpDataNode(int id, [FromBody] NodeModel node)
         {
             if(node == null)
                 return BadRequest();
 
             var noddb = new InfrastructureDbContext();
-            var exisNode = noddb.Nodes.Where(n => n.Status != RowStatus.Deleted).FirstOrDefault(n => n.Id == node.Id);
+            var exisNode = noddb.Nodes.Where(n => n.Status != RowStatus.Deleted).FirstOrDefault(n => n.Id == id);
 
             if(exisNode == null)
                 return NotFound();
 
 
 
-            exisNode.Id = node.Id;
+            
             exisNode.FloorId = node.FloorId;
             exisNode.X = node.X;
             exisNode.Y = node.Y;
             exisNode.Long = node.Long;
             exisNode.Lat = node.Lat;
-            exisNode.IsDeleted = node.IsDeleted;
-            exisNode.Status = RowStatus.Updated;
+            exisNode.NodeType = node.NodeType;
+          
+            
 
             noddb.SaveChanges();
             return Ok(exisNode);
@@ -116,7 +118,8 @@ namespace WebApplication1.Controllers
 
         public class NodeModel
         {
-            public int Id { get; set; }
+            
+
             public int? FloorId { get; set; }
 
             public decimal? X { get; set; }
@@ -129,7 +132,7 @@ namespace WebApplication1.Controllers
 
             public NodeType NodeType { get; set; }
 
-            public bool? IsDeleted { get; set; }
+            
 
         }
 
