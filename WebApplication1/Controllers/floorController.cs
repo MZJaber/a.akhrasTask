@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using WebApplication1.Dto;
 using WebApplication1.Models;
 
 namespace WebApplication1.Controllers
@@ -14,9 +15,9 @@ namespace WebApplication1.Controllers
         public IActionResult GetAllFloor()
         {
             var flodb = new InfrastructureDbContext();
-            var Floors = flodb.Floors.Where(f => f.Status != RowStatus.Deleted);
+            var Floors = flodb.Floors.Where(f => f.Status != RowStatus.Deleted).Select(f => new FloorDto { id=f.Id,Name=f.Name,Level= f.Level,VenueId=f.VenueId});
 
-            return Ok(Floors);
+            return Ok( Floors);
         }
         
 
@@ -24,13 +25,13 @@ namespace WebApplication1.Controllers
         public ActionResult<Floor> GetFloor(int id)
         {
             var fdb = new InfrastructureDbContext();
-            var floor = fdb.Floors.Where(f => f.Id == id && f.Status != RowStatus.Deleted).FirstOrDefault();
+            var floor = fdb.Floors.Where(f => f.Id == id && f.Status != RowStatus.Deleted).Select(f => new FloorDto { id = f.Id, Name = f.Name, Level = f.Level,VenueId=f.VenueId }).FirstOrDefault();
             if (floor == null)
             {
                 return NotFound();
 
             }
-            return floor;
+            return Ok(floor);
         }
 
 
@@ -65,12 +66,12 @@ namespace WebApplication1.Controllers
 
     [HttpPut("{id}")]
 
-        public IActionResult UpDateFloor([FromBody] FloorModel floor)
+        public IActionResult UpDateFloor( int id,[FromBody] FloorModel floor)
         { 
            if(floor == null)
                 return BadRequest();
            var flodb = new InfrastructureDbContext();
-           var exixFloor= flodb.Floors.Where(f => f.Status != RowStatus.Deleted).FirstOrDefault(f => f.Id == floor.Id);
+           var exixFloor= flodb.Floors.Where(f => f.Status != RowStatus.Deleted).FirstOrDefault(f => f.Id == id);
 
             if (exixFloor == null)   
                 return NotFound();
@@ -108,7 +109,7 @@ namespace WebApplication1.Controllers
 
         public class FloorModel
         {
-            public int? Id { get; set; }
+        
 
             public string? Name { get; set; }
 
