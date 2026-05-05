@@ -58,7 +58,7 @@ namespace WebApplication1.Controllers
             flodb.Floors.Add(newFloor);
             flodb.SaveChanges();
 
-            return Ok(new { id = newFloor.Id });
+            return CreatedAtAction(nameof(GetFloor), new { id = newFloor.Id }, newFloor);
        }
       
 
@@ -74,7 +74,7 @@ namespace WebApplication1.Controllers
            var exixFloor= flodb.Floors.Where(f => f.Status != RowStatus.Deleted).FirstOrDefault(f => f.Id == id);
 
             if (exixFloor == null)   
-                return NotFound();
+                return NotFound();//404
 
             //exixFloor.Id = (int)floor.Id;
             exixFloor.Name = floor.Name;
@@ -84,7 +84,7 @@ namespace WebApplication1.Controllers
 
             flodb.SaveChanges();
 
-            return Ok();
+            return NoContent();
 
         }
 
@@ -96,13 +96,14 @@ namespace WebApplication1.Controllers
         var exixFlor= flodb.Floors.Where(f=> f.Status != RowStatus.Deleted).FirstOrDefault(f => f.Id == id);
 
             if (exixFlor == null)
-                return NotFound();
+                return NotFound(); //404
             exixFlor.IsDeleted= true;
             exixFlor.Status= RowStatus.Deleted;
             flodb.SaveChanges ();
-        
-        return Ok();
-        
+            
+            flodb.DeleteFloor(id);
+            return NoContent();//204
+       
         }
 
 

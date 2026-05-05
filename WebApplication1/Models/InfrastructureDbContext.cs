@@ -68,7 +68,7 @@ public partial class InfrastructureDbContext : DbContext
             entity.Property(e => e.IsDeleted).HasColumnName("is_deleted");
             entity.Property(e => e.IsTwoWay).HasColumnName("is_two_way");
             entity.Property(e => e.SecondNodeId).HasColumnName("second_node_id");
-            entity.Property(e => e.Status).HasColumnName("status").HasConversion<string>();
+            entity.Property(e => e.Status).HasColumnName("status");
         });
 
         modelBuilder.Entity<Node>(entity =>
@@ -84,8 +84,8 @@ public partial class InfrastructureDbContext : DbContext
             entity.Property(e => e.Long).HasColumnName("long");
             entity.Property(e => e.X).HasColumnName("x");
             entity.Property(e => e.Y).HasColumnName("y");
-            entity.Property(e => e.NodeType).HasColumnName("node_type").HasConversion<string>();
-            entity.Property(e => e.Status).HasColumnName("status").HasConversion<string>();
+            entity.Property(e => e.NodeType).HasColumnName("node_type");
+            entity.Property(e => e.Status).HasColumnName("status");
 
             entity.HasOne(d => d.Floor).WithMany(p => p.Nodes)
                 .HasForeignKey(d => d.FloorId)
@@ -104,10 +104,15 @@ public partial class InfrastructureDbContext : DbContext
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
                 .HasColumnName("name");
-            entity.Property(e => e.Status).HasColumnName("status").HasConversion<string>();
+            entity.Property(e => e.Status).HasColumnName("status");
         });
 
         OnModelCreatingPartial(modelBuilder);
+    }
+
+    internal void DeleteFloor(int id)
+    {
+        throw new NotImplementedException();
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);

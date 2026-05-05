@@ -6,10 +6,13 @@ using WebApplication1.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 var dataSourceBuilder = new NpgsqlDataSourceBuilder(builder.Configuration.GetConnectionString("myCon"));
-dataSourceBuilder.MapEnum<NodeType>("nodetype");
+//dataSourceBuilder.MapEnum<NodeType>("nodetype");
 //dataSourceBuilder.MapEnum<RowStatus>("rowstatus");
 var dataSource = dataSourceBuilder.Build();
+//#pragma warning disable CS0618 // Type or member is obsolete
+NpgsqlConnection.GlobalTypeMapper.MapEnum<NodeType>("nodetype");
 NpgsqlConnection.GlobalTypeMapper.MapEnum<RowStatus>("rowstatus");
+//#pragma warning restore CS0618 // Type or member is obsolete
 
 // Add services to the container.
 builder.Services.AddDbContext<InfrastructureDbContext>(op => op.UseNpgsql(dataSource));

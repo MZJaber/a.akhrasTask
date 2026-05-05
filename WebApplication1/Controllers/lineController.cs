@@ -55,7 +55,7 @@ namespace WebApplication1.Controllers
             lindb.Lines.Add(newLine);
             lindb.SaveChanges();
 
-            return Ok(new { id = newLine.Id });
+            return CreatedAtAction(nameof(Get), new { id = newLine.Id }, newLine);
         }
        
 
@@ -81,7 +81,7 @@ namespace WebApplication1.Controllers
            
             lindb.SaveChanges();
 
-            return Ok();
+            return NoContent();
 
         }
 
@@ -99,11 +99,11 @@ namespace WebApplication1.Controllers
             lindb.SaveChanges();
 
 
-            return Ok() ;
-        
-        
-        
-        
+            return NoContent();
+
+
+
+
         }
 
 

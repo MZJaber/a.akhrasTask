@@ -57,7 +57,7 @@ namespace WebApplication1.Controllers
 
             Vendb.Venues.Add(NewVenuw);
             Vendb.SaveChanges();
-            return Ok(new {id=NewVenuw.Id});
+            return CreatedAtAction(nameof(Get), new { id = NewVenuw.Id }, NewVenuw);
         }
 
      
@@ -80,7 +80,7 @@ namespace WebApplication1.Controllers
             exisVenue.Status = RowStatus.Updated;
             venudb.SaveChanges();
 
-            return Ok();
+            return NoContent();
 
 
 
@@ -100,8 +100,8 @@ namespace WebApplication1.Controllers
             exixvenue.IsDeleted = true;
             exixvenue.Status = RowStatus.Deleted;
             venuedb.SaveChanges();
-            return Ok();
-               
+            return NoContent();
+
         }
 
         public class VenueModel

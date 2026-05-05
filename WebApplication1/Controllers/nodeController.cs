@@ -19,8 +19,7 @@ namespace WebApplication1.Controllers
      [HttpGet]
         public IActionResult GetAllNode()
         {
-            var nodedb = new InfrastructureDbContext();
-            var Nodes = nodedb.Nodes.Where(f => f.Status != RowStatus.Deleted).Select(n => new NodeDto { Id = n.Id, floor_id = n.FloorId, x = n.X, y = n.Y, Long = n.Long, lat = n.Lat}).ToList();
+            var Nodes = _context.Nodes.Where(f => f.Status != RowStatus.Deleted).Select(n => new NodeDto { Id = n.Id, floor_id = n.FloorId, x = n.X, y = n.Y, Long = n.Long, lat = n.Lat}).ToList();
             return Ok(Nodes);
 
         }
@@ -46,7 +45,7 @@ namespace WebApplication1.Controllers
             if (node == null)
                 return BadRequest();
 
-            var noddb = new InfrastructureDbContext();
+           
 
             var newNode = new Node()
             {
@@ -59,11 +58,12 @@ namespace WebApplication1.Controllers
                 IsDeleted = false
             };
 
-            noddb.Nodes.Add(newNode);
-            noddb.SaveChanges();
+            _context.Nodes.Add(newNode);
+            _context.SaveChanges();
 
-            return Ok(new { id = newNode.Id });
+            return CreatedAtAction(nameof(GetNode), new { id = newNode.Id }, newNode);
         }
+        
        
 
      [HttpPut("{id}")]
@@ -72,8 +72,8 @@ namespace WebApplication1.Controllers
             if(node == null)
                 return BadRequest();
 
-            var noddb = new InfrastructureDbContext();
-            var exisNode = noddb.Nodes.Where(n => n.Status != RowStatus.Deleted).FirstOrDefault(n => n.Id == id);
+            
+            var exisNode = _context.Nodes.Where(n => n.Status != RowStatus.Deleted).FirstOrDefault(n => n.Id == id);
 
             if(exisNode == null)
                 return NotFound();
@@ -87,11 +87,12 @@ namespace WebApplication1.Controllers
             exisNode.Long = node.Long;
             exisNode.Lat = node.Lat;
             exisNode.NodeType = node.NodeType;
-          
-            
 
-            noddb.SaveChanges();
-            return Ok(exisNode);
+
+
+            _context.SaveChanges();
+            
+            return NoContent();
         }
 
 
@@ -99,21 +100,21 @@ namespace WebApplication1.Controllers
      [HttpDelete("{id}")]
         public IActionResult DEleteNode(int id)
         { 
-        var noddb = new InfrastructureDbContext();
-        var exixNode= noddb.Nodes.Where(n => n.Status != RowStatus.Deleted).FirstOrDefault(n => n.Id == id);
+      
+        var exixNode= _context.Nodes.Where(n => n.Status != RowStatus.Deleted).FirstOrDefault(n => n.Id == id);
 
             if(exixNode == null)
                 return NotFound();
 
             exixNode.IsDeleted = true;
             exixNode.Status = RowStatus.Deleted;
-            noddb.SaveChanges();
-            return Ok();
+            _context.SaveChanges();
+            return NoContent();
 
 
 
-        
-        
+
+
         }
 
         public class NodeModel
