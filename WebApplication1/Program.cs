@@ -1,7 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using System.Text.Json.Serialization;
+using WebApplication1.Controllers;
+using WebApplication1.Interfaces;
 using WebApplication1.Models;
+using WebApplication1.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,8 +28,14 @@ builder.Services.AddControllers().AddJsonOptions(op =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddScoped<FloorServices>();
+builder.Services.AddScoped<LineServices>();
+builder.Services.AddScoped<NodeServices>();
+builder.Services.AddScoped<VenueServices>();
 var app = builder.Build();
+
+
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using WebApplication1.Dto;
+using WebApplication1.Interfaces;
 using WebApplication1.Models;
+using WebApplication1.Services;
 
 namespace WebApplication1.Controllers
 {
@@ -9,17 +11,17 @@ namespace WebApplication1.Controllers
     [ApiController]
     public class nodeController : Controller
     {
-        private InfrastructureDbContext _context;
+        private readonly NodeServices _nodeService;
 
-        public nodeController([FromServices] InfrastructureDbContext context)
+        public nodeController(NodeServices nodeService)
         {
-            _context = context;
+            _nodeService = nodeService;
         }
 
      [HttpGet]
         public IActionResult GetAllNode()
         {
-            var Nodes = _context.Nodes.Where(f => f.Status != RowStatus.Deleted).Select(n => new NodeDto { Id = n.Id, floor_id = n.FloorId, x = n.X, y = n.Y, Long = n.Long, lat = n.Lat}).ToList();
+            var Nodes = _nodeService.GetAllNode();
             return Ok(Nodes);
 
         }
@@ -30,7 +32,7 @@ namespace WebApplication1.Controllers
         {
 
 
-            var node = _context.Nodes.Where(n => n.Id == id && n.Status != RowStatus.Deleted).Select(n => new NodeDto {Id=n.Id,floor_id=n.FloorId,x=n.X,y=n.Y,Long=n.Long,lat=n.Lat }).FirstOrDefault();
+            var node = _nodeService.GetNode( id);
             if (node == null)
             { return NotFound(); }
             return Ok(node);
@@ -39,101 +41,38 @@ namespace WebApplication1.Controllers
 
 
 
-     [HttpPost]
-        public IActionResult CreateNode([FromBody] NodeModel node)
+        [HttpPost]
+        public IActionResult CreateNode([FromBody] NodeModel model)
+        {
+            if (model == null)
+                return BadRequest();
+
+            
+            var newNode = _nodeService.CreateNode(model);
+            return CreatedAtAction(nameof(GetNode), new { id = newNode.Id }, newNode);
+
+        }
+
+
+
+        [HttpPut("{id}")]
+
+        public IActionResult UpdateNode(int id, [FromBody] NodeModel node)
         {
             if (node == null)
                 return BadRequest();
-
-           
-
-            var newNode = new Node()
-            {
-                FloorId = node.FloorId ?? 0,
-                X = node.X ,
-                Y = node.Y,
-                Long = node.Long ,
-                Lat = node.Lat ,
-                NodeType = node.NodeType,
-                IsDeleted = false
-            };
-
-            _context.Nodes.Add(newNode);
-            _context.SaveChanges();
-
-            return CreatedAtAction(nameof(GetNode), new { id = newNode.Id }, newNode);
-        }
-        
-       
-
-     [HttpPut("{id}")]
-        public IActionResult UpDataNode(int id, [FromBody] NodeModel node)
-        {
-            if(node == null)
-                return BadRequest();
-
-            
-            var exisNode = _context.Nodes.Where(n => n.Status != RowStatus.Deleted).FirstOrDefault(n => n.Id == id);
-
-            if(exisNode == null)
-                return NotFound();
-
-
-
-            
-            exisNode.FloorId = node.FloorId;
-            exisNode.X = node.X;
-            exisNode.Y = node.Y;
-            exisNode.Long = node.Long;
-            exisNode.Lat = node.Lat;
-            exisNode.NodeType = node.NodeType;
-
-
-
-            _context.SaveChanges();
-            
-            return NoContent();
-        }
-
-
-
-     [HttpDelete("{id}")]
-        public IActionResult DEleteNode(int id)
-        { 
-      
-        var exixNode= _context.Nodes.Where(n => n.Status != RowStatus.Deleted).FirstOrDefault(n => n.Id == id);
-
-            if(exixNode == null)
-                return NotFound();
-
-            exixNode.IsDeleted = true;
-            exixNode.Status = RowStatus.Deleted;
-            _context.SaveChanges();
+            _nodeService.UpdateNode(id,node);
             return NoContent();
 
-
-
-
-
         }
 
-        public class NodeModel
+
+
+        [HttpDelete("{id}")]
+        public IActionResult DeleteNode(int id)
         {
-            
-
-            public int? FloorId { get; set; }
-
-            public decimal? X { get; set; }
-
-            public decimal? Y { get; set; }
-
-            public decimal? Long { get; set; }
-
-            public decimal? Lat { get; set; }
-
-            public NodeType NodeType { get; set; }
-
-            
+            _nodeService.DEleteNode(id);
+            return NoContent();
 
         }
 

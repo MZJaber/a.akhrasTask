@@ -1,124 +1,89 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using WebApplication1.Dto;
+using WebApplication1.Interfaces;
 using WebApplication1.Models;
+using WebApplication1.Services;
 
 namespace WebApplication1.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class lineController : Controller
+    public class LineController : Controller
     {
+        private readonly LineServices _lineServices;
+
+        public LineController(LineServices lineServices)
+        { _lineServices = lineServices; }
 
 
      [HttpGet]
         public IActionResult GetAllLine()
         {
-            var lindb = new InfrastructureDbContext();
-            var lins = lindb.Lines.Where(l => l.Status != RowStatus.Deleted).Select(l => new LineDto { id = l.Id, first_node_id = l.FirstNodeId, second_node_id=l.SecondNodeId, is_two_way=l.IsTwoWay });
-            return Ok(lins);
+
+            var Lines = _lineServices.GetAllLine();
+
+            return Ok(Lines);
         }
 
-     [HttpGet("{id}")]
-        public ActionResult<Line> Get(int id)
+
+
+
+
+        [HttpGet("{id}")]
+        public ActionResult Get(int id)
         {
-            var lidb = new InfrastructureDbContext();
-            var lineId = lidb.Lines.Where(l => l.Id == id && l.Status != RowStatus.Deleted).Select(l => new LineDto { id = l.Id, first_node_id = l.FirstNodeId, second_node_id = l.SecondNodeId, is_two_way = l.IsTwoWay }).FirstOrDefault();
-            if (lineId == null)
+
+            var line = _lineServices.Get(id);
+            if (line == null)
             {
                 return NotFound();
+
             }
-            return Ok(lineId);
+            return Ok(line);
         }
 
 
 
 
 
-     [HttpPost]
-        public IActionResult CreateLine([FromBody] LineModel line)
+
+
+        [HttpPost]
+        public IActionResult AddLine([FromBody] LineModel model)
+        {
+            if (model == null)
+                return BadRequest();
+
+           
+            var newLine = _lineServices.AddLine(model);
+            return CreatedAtAction(nameof(Get), new { id = newLine.id }, newLine);
+
+        }
+
+
+
+        [HttpPut("{id}")]
+
+        public IActionResult UpdateLine(int id, [FromBody] LineModel line)
         {
             if (line == null)
                 return BadRequest();
-
-            var lindb = new InfrastructureDbContext();
-
-            var newLine = new Line()
-            {
-                FirstNodeId = line.FirstNodeId ?? 0,
-                SecondNodeId = line.SecondNodeId ?? 0,
-                IsTwoWay = line.IsTwoWay,
-                IsDeleted = false,
-                Status=RowStatus.New
-            };
-
-            lindb.Lines.Add(newLine);
-            lindb.SaveChanges();
-
-            return CreatedAtAction(nameof(Get), new { id = newLine.Id }, newLine);
-        }
-       
-
-     [HttpPut ("{id}")]
-        public IActionResult UpDateLine(int id, [FromBody] LineModel line)
-        { 
-         if(line == null)
-                return BadRequest();
-
-         var lindb = new InfrastructureDbContext();
-         var exisLine = lindb.Lines.Where(l => l.Status != RowStatus.Deleted).FirstOrDefault(l => l.Id == id);
-
-
-            if(exisLine == null)
-                return NotFound();
-
-
-
-            //exisLine.Id = (int)line.Id;
-            exisLine.FirstNodeId = line.FirstNodeId;
-            exisLine.SecondNodeId = line.SecondNodeId;
-            exisLine.Status = RowStatus.Updated;
-           
-            lindb.SaveChanges();
-
+            _lineServices.UpdateLine(id, line);
             return NoContent();
 
         }
 
         [HttpDelete("{id}")]
         public IActionResult DeleteLine(int id)
-        { 
-        var lindb = new InfrastructureDbContext();
-        var exixLine=lindb.Lines.Where(l => l.Status != RowStatus.Deleted).FirstOrDefault(l => l.Id == id);
-
-            if(exixLine == null)
-                return NotFound();
-            
-            exixLine.IsDeleted = true;
-            exixLine.Status = RowStatus.Deleted;
-            lindb.SaveChanges();
-
-
+        {
+            _lineServices.DeleteLine(id);
             return NoContent();
 
-
-
-
         }
 
 
-        public class LineModel
-        {
-           
 
-            public int? FirstNodeId { get; set; }
-
-            public int? SecondNodeId { get; set; }
-
-            public bool? IsTwoWay { get; set; }
-            
-            
-        }
 
 
     }
