@@ -57,7 +57,7 @@ namespace WebApplication1.Controllers
 
            
             var newLine = _lineServices.AddLine(model);
-            return CreatedAtAction(nameof(Get), new { id = newLine.id }, newLine);
+            return CreatedAtAction(nameof(Get), new { Id = newLine.id }, newLine);
 
         }
 

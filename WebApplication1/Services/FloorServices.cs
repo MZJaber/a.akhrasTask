@@ -2,22 +2,23 @@
 using WebApplication1.Dto;
 using WebApplication1.Interfaces;
 using WebApplication1.Models;
+using WebApplication1.Repository;
 
 namespace WebApplication1.Services
 {
     
     public class FloorServices
     {
-        private readonly InfrastructureDbContext _db ;
+        private readonly FloorRepository _FloorRepo ;
 
      
 
 
-        public FloorServices(InfrastructureDbContext db)
-        {_db = db; }
+        public FloorServices(FloorRepository FloorRepo)
+        { _FloorRepo = FloorRepo; }
         public List<FloorDto> GetAllFloor()
         {
-            return _db.Floors.Where(f => f.Status != RowStatus.Deleted).Select(f => new FloorDto { id = f.Id, Name = f.Name, Level = f.Level, VenueId = f.VenueId }).ToList();
+            return _FloorRepo.GetAllFloor().Select(f => new FloorDto(f)).ToList();
         }
 
 
@@ -25,34 +26,41 @@ namespace WebApplication1.Services
 
         public FloorDto GetFloor(int id)
         {
-            return _db.Floors.Where(f => f.Id == id && f.Status != RowStatus.Deleted).Select(f => new FloorDto { id = f.Id, Name = f.Name, Level = f.Level, VenueId = f.VenueId }).FirstOrDefault();
+
+            var f =_FloorRepo.GetFloor(id);
+
+             return   new FloorDto (f);
         }
 
 
-        public Floor Add(FloorModel model)
+        public FloorDto Add(FloorModel model)
         {
             var newFloor = new Floor
             {
                 Name = model.Name,
                 Level = model.Level,
                 IsDeleted = false,
-                VenueId= model.VenueId
+                VenueId= model.VenueId,
+                Status= RowStatus.New
+            
                
             };
-            _db.Floors.Add(newFloor);
-            _db.SaveChanges();
-            return newFloor;
+            _FloorRepo.Add(newFloor);
+           
+            return new FloorDto(newFloor);
         }
 
         public void Update(int id,FloorModel model)
         {
-            var exixFloor = _db.Floors.Where(f => f.Status != RowStatus.Deleted).FirstOrDefault(f => f.Id == id);
+            var exixFloor = _FloorRepo.GetFloor(id);
             if (exixFloor != null) 
             { 
             exixFloor.Name = model.Name;
                 exixFloor.Level = model.Level;
                 exixFloor.VenueId = model.VenueId;
-                _db.SaveChanges();
+                exixFloor.Status = RowStatus.New;
+                
+                _FloorRepo.Update(exixFloor);
             }
             
 
@@ -63,11 +71,12 @@ namespace WebApplication1.Services
 
         public void Delete(int  id)
         {
-            var floor = _db.Floors.Find(id);
+            var floor = _FloorRepo.GetFloor(id);
             if (floor != null)
             {
                 floor.Status = RowStatus.Deleted;
-                _db.SaveChanges();
+
+                _FloorRepo.Delete(floor);
 
 
             }

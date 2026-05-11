@@ -6,6 +6,14 @@ namespace WebApplication1.Dto
     {
         public int? id { get; set; }
         public string? name { get; set; }
+
+
+        public VenueDto(Venue v) 
+        {
+            id = v.Id; name = v.Name;
+
+
+        }
         
     }
 }

@@ -1,27 +1,30 @@
 ﻿using System;
 using WebApplication1.Dto;
 using WebApplication1.Models;
+using WebApplication1.Repository;
 
 namespace WebApplication1.Services
 {
     public class VenueServices
     {
-        private InfrastructureDbContext _db;
+        private readonly VenueRepository _venueRepo;
 
-        public VenueServices(InfrastructureDbContext db)
-        { _db = db; }
+        public VenueServices(VenueRepository venueRepo)
+        { _venueRepo = venueRepo; }
 
 
 
         public List<VenueDto> GetAllVenues()
         {
-            return _db.Venues.Where(l => l.Status != RowStatus.Deleted).Select(l => new VenueDto { id=l.Id,name=l.Name}).ToList();
+            return _venueRepo.GetAllVenues().Select(v => new VenueDto (v)).ToList();
         }
 
 
-        public VenueDto Get(int id)
+        public VenueDto get(int id)
         {
-            return _db.Venues.Where(l => l.Id == id && l.Status != RowStatus.Deleted).Select(l => new VenueDto { id = l.Id, name = l.Name }).FirstOrDefault();
+            var v = _venueRepo.get(id);
+
+            return new VenueDto(v);
         }
 
 
@@ -35,10 +38,10 @@ namespace WebApplication1.Services
 
 
             };
-            _db.Venues.Add(newVenue);
-            _db.SaveChanges();
+            _venueRepo.Add(newVenue);
+           
 
-            return new VenueDto {id=newVenue.Id,name=newVenue.Name};
+            return new VenueDto (newVenue);
         }
 
 
@@ -46,23 +49,23 @@ namespace WebApplication1.Services
 
         public void UpDateVenue(int id, VenueModel model)
         {
-            var exisVenue = _db.Venues.Where(l => l.Status != RowStatus.Deleted).FirstOrDefault(l => l.Id == id);
+            var exisVenue = _venueRepo.get(id);
             if (exisVenue != null)
             {
                 exisVenue.Name =model.Name; ;
                 exisVenue.Status = RowStatus.Updated;
-                _db.SaveChanges();
+                
             }
 
 
         }
         public void DEleteVenue(int id)
         {
-            var venue = _db.Venues.Find(id);
+            var venue = _venueRepo.get(id);
             if (venue != null)
             {
                 venue.Status = RowStatus.Deleted;
-                _db.SaveChanges();
+                
 
 
             }

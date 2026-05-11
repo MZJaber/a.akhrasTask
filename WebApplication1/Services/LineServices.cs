@@ -1,29 +1,33 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
+using System.Drawing;
 using WebApplication1.Dto;
 using WebApplication1.Interfaces;
 using WebApplication1.Models;
+using WebApplication1.Repository;
 
 namespace WebApplication1.Services
 {
     public class LineServices
     {
-        private InfrastructureDbContext _db;
+        private readonly LineRepository _LineRepo;
 
+       
 
-        public LineServices(InfrastructureDbContext db)
+        public LineServices(LineRepository LineRepo)
         {
-            _db = db;
+            _LineRepo = LineRepo;
         }
 
         public List<LineDto> GetAllLine()
         {
-            return _db.Lines.Where(l => l.Status != RowStatus.Deleted).Select(l => new LineDto { first_node_id=l.FirstNodeId,second_node_id=l.SecondNodeId,is_two_way=l.IsTwoWay }).ToList();
+            return _LineRepo.GetAllLine().Select(l => new LineDto (l)).ToList();
         }
 
 
         public LineDto Get(int id)
         {
-            return _db.Lines.Where(l => l.Id == id && l.Status != RowStatus.Deleted).Select(l => new LineDto { first_node_id = l.FirstNodeId, second_node_id = l.SecondNodeId, is_two_way = l.IsTwoWay }).FirstOrDefault();
+            var l = _LineRepo.Get(id);
+            return new LineDto (l);
         }
 
 
@@ -38,36 +42,38 @@ namespace WebApplication1.Services
                IsTwoWay = model.IsTwoWay,
 
             };
-            _db.Lines.Add(newline);
-            _db.SaveChanges();
 
-            return new LineDto { id=newline.Id,first_node_id=newline.FirstNodeId,second_node_id=newline.SecondNodeId,is_two_way=newline.IsTwoWay };
+            _LineRepo.AddLine(newline);
+            
+
+            return new (newline);
         }
 
 
 
 
-        public void UpdateLine(int id, LineModel model)
+        public void UpdateLine(int id,LineModel model)
         {
-            var exixLine = _db.Lines.Where(l => l.Status != RowStatus.Deleted).FirstOrDefault(l => l.Id == id);
+            var exixLine = _LineRepo.Get(id);
             if (exixLine != null)
             {
                 exixLine.FirstNodeId = model.FirstNodeId;
                 exixLine.SecondNodeId = model.SecondNodeId;
                 exixLine.IsTwoWay = model.IsTwoWay;
-                _db.SaveChanges();
+                exixLine.Status = RowStatus.New;
+
             }
 
 
         }
         public void DeleteLine(int id)
         {
-            var line = _db.Lines.Find(id);
+            var line = _LineRepo.Get(id);
             if (line != null)
             {
                 line.Status = RowStatus.Deleted;
-                _db.SaveChanges();
 
+                _LineRepo.DeleteLine(line);
 
             }
 

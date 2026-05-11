@@ -35,9 +35,9 @@ namespace WebApplication1.Controllers
 
 
    [HttpGet("{id}")]
-        public ActionResult<Venue> Get(int id)
+        public ActionResult<Venue> get(int id)
         {
-            var venue = _venueServices.Get(id);
+            var venue = _venueServices.get(id);
             if (venue == null)
             {
                 return NotFound();
@@ -56,7 +56,7 @@ namespace WebApplication1.Controllers
 
 
             var newVenue = _venueServices.CreateVenue(model);
-            return CreatedAtAction(nameof(Get), new { id = newVenue.id }, newVenue);
+            return CreatedAtAction(nameof(get), new { id = newVenue.id }, newVenue);
         }
 
      

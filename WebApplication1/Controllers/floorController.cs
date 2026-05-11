@@ -56,7 +56,7 @@ namespace WebApplication1.Controllers
 
             //_floorServices.Add(model);
             var newFloor = _floorServices.Add(model);
-            return CreatedAtAction(nameof(GetFloor), new { id = newFloor.Id }, newFloor);
+            return CreatedAtAction(nameof(GetFloor), new { id = newFloor.id }, newFloor);
 
        }
       

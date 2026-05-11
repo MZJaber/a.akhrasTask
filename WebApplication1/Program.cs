@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using WebApplication1.Controllers;
 using WebApplication1.Interfaces;
 using WebApplication1.Models;
+using WebApplication1.Repository;
 using WebApplication1.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,6 +33,10 @@ builder.Services.AddScoped<FloorServices>();
 builder.Services.AddScoped<LineServices>();
 builder.Services.AddScoped<NodeServices>();
 builder.Services.AddScoped<VenueServices>();
+builder.Services.AddScoped<FloorRepository>();
+builder.Services.AddScoped<LineRepository>();
+builder.Services.AddScoped<NodeRepository>();
+builder.Services.AddScoped<VenueRepository>();
 var app = builder.Build();
 
 

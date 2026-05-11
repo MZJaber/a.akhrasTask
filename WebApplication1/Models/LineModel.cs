@@ -10,6 +10,7 @@
             public int? SecondNodeId { get; set; }
 
             public bool? IsTwoWay { get; set; }
+       
 
 
         
