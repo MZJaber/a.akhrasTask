@@ -2,7 +2,6 @@
 using System;
 using WebApplication1.Dto;
 using WebApplication1.Interfaces;
-using WebApplication1.Models;
 using WebApplication1.Services;
 
 namespace WebApplication1.Controllers
