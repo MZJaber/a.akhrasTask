@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using WebApplication1.Controllers;
 using WebApplication1.Interfaces;
 using WebApplication1.Models;
+using WebApplication1.Presentation.Middleware;
 using WebApplication1.Repository;
 using WebApplication1.Services;
 
@@ -40,7 +41,7 @@ builder.Services.AddScoped<VenueRepository>();
 var app = builder.Build();
 
 
-
+app.UseMiddleware<ExceptionMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -48,6 +49,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+
 
 app.UseHttpsRedirection();
 
