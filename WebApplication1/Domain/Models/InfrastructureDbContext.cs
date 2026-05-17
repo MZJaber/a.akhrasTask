@@ -22,17 +22,17 @@ public partial class InfrastructureDbContext : DbContext
 
     public virtual DbSet<Venue> Venues { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 
-    {
-        optionsBuilder.UseNpgsql("Host=localhost:5432;Database=infrastructure_db;Username=postgres;Password=20131026");
+    //{
+    //    optionsBuilder.UseNpgsql("Host=localhost:5432;Database=infrastructure_db;Username=postgres;Password=20131026");
         
-    }
+    //}
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasPostgresEnum<NodeType>();
-        modelBuilder.HasPostgresEnum<RowStatus>();
+        modelBuilder.HasPostgresEnum("nodetype", ["elevator", "escalator", "ramp", "stairs", "normal"]);
+        modelBuilder.HasPostgresEnum("rowstatus", ["new", "updated", "deleted"]);
 
         modelBuilder.Entity<Floor>(entity =>
         {
