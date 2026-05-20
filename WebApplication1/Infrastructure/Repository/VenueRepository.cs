@@ -1,4 +1,5 @@
-﻿using WebApplication1.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using WebApplication1.Models;
 
 namespace WebApplication1.Repository
 {
@@ -23,6 +24,12 @@ namespace WebApplication1.Repository
         {
 
             return _db.Venues.Where(l => l.Id == id && l.Status != RowStatus.Deleted).FirstOrDefault();
+        }
+
+
+        public async Task<Venue> GetVenueAsync(int id)
+        {
+            return await _db.Venues.Include(l=>l.Floors).Where(l => l.Id == id && l.Status != RowStatus.Deleted).FirstOrDefaultAsync(l=>l.Id==id);
         }
 
 

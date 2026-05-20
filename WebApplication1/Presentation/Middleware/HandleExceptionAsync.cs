@@ -2,23 +2,14 @@
 using System.Net;
 using System.Text.Json;
 
-namespace WebApplication1.Presentation.Middleware 
+namespace WebApplication1.Presentation.Middleware
 {
-
-
-
-
     public class HandleExceptionAsync : IMiddleware
     {
-        HttpContext context;
-        Exception exception;
-        public HttpStatusCode statusCode ;
+        public HttpStatusCode statusCode;
         string message = "error";
 
-       
-
-       
-        public string eroorName()
+        public async Task ErrorName(HttpContext context, Exception exception)
         {
             switch (exception)
             {
@@ -38,7 +29,6 @@ namespace WebApplication1.Presentation.Middleware
                     break;
 
                 default:
-
                     statusCode = HttpStatusCode.InternalServerError;
                     break;
             }
@@ -47,12 +37,12 @@ namespace WebApplication1.Presentation.Middleware
 
             var response = new
             {
-                StatusCode = context.Response.StatusCode,
+                statusCode = context.Response.StatusCode,
                 Message = message,
                 Detail = exception.Message
             };
 
-            return context.Response.WriteAsJsonAsync(response).ToString();
+            await context.Response.WriteAsJsonAsync(response);
         }
 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
@@ -60,76 +50,48 @@ namespace WebApplication1.Presentation.Middleware
             await next(context);
         }
 
+        public class GlobalExceptionMiddleware
+        {
+
+            private readonly RequestDelegate _next;
+
+            public GlobalExceptionMiddleware(RequestDelegate next)
+            {
+                _next = next;
+            }
 
 
+            public async Task InvokeAsync(HttpContext context)
+            {
+                try
+                {
 
+                    await _next(context);
+                }
+                catch (Exception ex)
+                {
 
+                    await HandleExceptionAsync(context, ex);
+                }
+            }
 
+            private static Task HandleExceptionAsync(HttpContext context, Exception ex)
+            {
+                context.Response.ContentType = "application/json";
+                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
+                var response = new
+                {
+                    statusCode = context.Response.StatusCode,
+                    Message = "Internal Server",
+                    Detail = ex.Message
+                };
 
+                var jsonResponse = JsonSerializer.Serialize(response);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        //public class GlobalExceptionMiddleware
-        //{
-
-        //        private readonly RequestDelegate _next;
-
-        //        public GlobalExceptionMiddleware(RequestDelegate next)
-        //        {
-        //            _next = next;
-        //        }
-
-
-        //        public async Task InvokeAsync(HttpContext context)
-        //        {
-        //            try
-        //            {
-
-        //                await _next(context);
-        //            }
-        //            catch (Exception ex)
-        //            {
-
-        //                await HandleExceptionAsync(context, ex);
-        //            }
-        //        }
-
-        //        private static Task HandleExceptionAsync(HttpContext context, Exception ex)
-        //        {
-        //            context.Response.ContentType = "application/json";
-        //            context.Response.StatusCode=(int)HttpStatusCode.InternalServerError;
-
-        //            var response = new
-        //            {
-        //                StatusCode = context.Response.StatusCode,
-        //                Message = "Internal Server",
-        //                Detail = ex.Message 
-        //            };
-
-        //        var jsonResponse = JsonSerializer.Serialize(response);
-
-        //            return context.Response.WriteAsJsonAsync(jsonResponse);
-        //        }
-        //}
-
+                return context.Response.WriteAsJsonAsync(jsonResponse);
+            }
+        }
     }
 }
 

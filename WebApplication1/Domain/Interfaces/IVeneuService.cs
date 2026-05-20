@@ -1,4 +1,5 @@
 ﻿using WebApplication1.Dto;
+using WebApplication1.Models;
 
 namespace WebApplication1.Interfaces
 {
@@ -9,6 +10,6 @@ namespace WebApplication1.Interfaces
         VenueDto CreateVenue(VenueModel model);
         void DEleteVenue(int id);
         void UpDateVenue(VenueModel model);
-
+        Task <Venue>GetVenueAsync(int id);
     }
 }

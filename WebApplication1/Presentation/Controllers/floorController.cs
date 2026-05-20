@@ -45,10 +45,9 @@ namespace WebApplication1.Controllers
 
 
 
+       
 
-
-
-    [HttpPost]
+        [HttpPost]
        public IActionResult CreateFloor([FromBody] FloorModel model)
        {
             if (model == null)

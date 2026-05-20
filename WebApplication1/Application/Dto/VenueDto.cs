@@ -14,6 +14,7 @@ namespace WebApplication1.Dto
 
 
         }
-        
+        public List<FloorDto> Floors { get; set; } = new List<FloorDto>();
+
     }
 }

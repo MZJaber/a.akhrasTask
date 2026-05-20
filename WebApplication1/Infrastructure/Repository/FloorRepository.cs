@@ -1,4 +1,5 @@
-﻿using WebApplication1.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using WebApplication1.Models;
 
 namespace WebApplication1.Repository
 {
@@ -28,6 +29,11 @@ namespace WebApplication1.Repository
             return _db.Floors.Where(f => f.Id == id && f.Status != RowStatus.Deleted).FirstOrDefault();
 
 
+        }
+
+        public List<Floor> GetFloorId(int id)
+        {
+            return _db.Floors.Where(f => f.VenueId == id && f.Status != RowStatus.Deleted).ToList();
         }
 
 

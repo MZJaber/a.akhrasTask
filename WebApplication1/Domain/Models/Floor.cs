@@ -19,5 +19,5 @@ public partial class Floor
 
     public virtual Venue? Venue { get; set; }
     public RowStatus  Status { get; set; }
-       
+
 }
